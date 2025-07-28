@@ -33,7 +33,7 @@ text.Font = Enum.Font.GothamBlack
 text.TextScaled = true
 text.Text = "60s"
 
-local t = 70
+local t = 60
 task.spawn(function()
     while t > 0 do
         text.Text = tostring(t) .. "s"
